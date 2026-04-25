@@ -1,0 +1,499 @@
+<div class="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-start justify-center py-10 transition-colors duration-300">
+<div class="bg-white dark:bg-slate-900 w-full max-w-5xl rounded-2xl shadow-xl p-8 border border-slate-100 dark:border-slate-800">
+
+        <!-- HEADER -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
+                    📝 Task Manager
+                </h2>
+            </div>
+
+            <!-- THEME TOGGLE -->
+            <button (click)="theme.toggleTheme()" 
+                    class="p-2 rounded-lg bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-yellow-400 hover:scale-110 transition-transform">
+                <span *ngIf="!theme.isDarkMode()">🌙 Dark Mode</span>
+                <span *ngIf="theme.isDarkMode()">☀️ Light Mode</span>
+            </button>
+        </div>
+
+
+        <!-- FORM -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+
+            <!-- Task Name -->
+            <div>
+                <label class="text-sm text-slate-900 dark:text-white">Task Name *</label>
+                <input [(ngModel)]="taskName" placeholder="Enter task name"
+                    class="w-full mt-1 border dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" />
+
+                <p *ngIf="submittedAdd  && !taskName" class="text-red-500 text-xs mt-1 text-base">
+                    Task name is required
+                </p>
+            </div>
+
+            <!-- Assign To -->
+            <div>
+                <label class="text-sm text-slate-900 dark:text-white">Assign To *</label>
+
+                <!-- ✅ Dropdown with user emails -->
+                <select [(ngModel)]="assignedTo"
+                    class="w-full mt-1 border dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+
+                    <option value="">Select User Email</option>
+
+                    <option *ngFor="let u of users" [value]="u.email">
+                        {{ u.name }} ({{ u.email }})
+                    </option>
+
+                </select>
+
+                <p *ngIf="submittedAdd && !assignedTo" class="text-red-500 text-xs mt-2 text-base">
+                    AssignedTo is required
+                </p>
+            </div>
+
+
+            <!-- Category -->
+            <div>
+                <div class="flex items-center justify-between">
+                    <label class="text-sm text-slate-900 dark:text-white">Category *</label>
+                    <button (click)="showAddCategory = !showAddCategory" 
+                            class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                        + Add New
+                    </button>
+                </div>
+
+                <div *ngIf="showAddCategory" class="flex gap-2 mt-1">
+                    <input [(ngModel)]="newCategoryName" placeholder="New category" 
+                           class="flex-1 border dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500" />
+                    <button (click)="addCategory()" [disabled]="loadingCategory"
+                            class="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs">
+                        {{ loadingCategory ? '...' : 'Add' }}
+                    </button>
+                </div>
+
+                <select *ngIf="!showAddCategory" [(ngModel)]="category" 
+                        class="w-full mt-1 border dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select category</option>
+                    <option *ngFor="let c of categories" [value]="c">
+                        {{ c }}
+                    </option>
+                </select>
+
+
+                <p *ngIf="submittedAdd && !category" class="text-red-500 text-xs mt-1 text-base">
+                    Category is required
+                </p>
+            </div>
+
+            <!-- Date -->
+            <div>
+                <label class="text-sm text-slate-900 dark:text-white">Date *</label>
+                <input type="date" [(ngModel)]="date" [min]="today"
+                    class="w-full mt-1 border dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" />
+
+                <p *ngIf="submittedAdd && !date" class="text-red-500 text-xs mt-1 text-base">
+                    Date is required
+                </p>
+            </div>
+
+        </div>
+
+        <!-- BUTTONS -->
+        <div class="flex flex-wrap gap-4 mb-8">
+
+            <button (click)="saveTask()" [disabled]="loadingAdd || loadingEdit"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition flex items-center gap-2">
+                
+                <span *ngIf="loadingAdd" class="spinner"></span>
+                {{ loadingAdd ? (editTask ? 'Updating...' : 'Adding...') : (editTask ? 'Update Task' : 'Add Task') }}
+            </button>
+
+            <button (click)="deleteAll()"
+                class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition">
+                Delete All
+            </button>
+
+            <button (click)="showFilterPopup = true"
+                class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700">
+                🔍 Filter
+            </button>
+
+            <button (click)="resetFilter()" class="px-4 py-2 bg-gray-300 rounded-lg">
+                Reset Filter
+            </button>
+            <button (click)="refreshTasks()"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg font-medium transition">
+                
+                🔄 Refresh
+            </button>
+
+        </div>
+        <!-- FILTER POPUP -->
+        <div *ngIf="showFilterPopup" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-300">
+
+            <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-xl p-6 shadow-xl border dark:border-slate-800">
+
+                <h3 class="text-lg font-bold mb-5 text-slate-900 dark:text-white">
+                    🔍 Filter Tasks
+                </h3>
+
+                <!-- CATEGORY -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-900 dark:text-white mb-1">
+                        Category
+                    </label>
+
+                    <select [(ngModel)]="filterCategory"
+                        class="w-full border dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+
+                        <option value="">Select category</option>
+
+                        <option *ngFor="let c of categories" [value]="c">
+                            {{ c }}
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <!-- STATUS -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-900 dark:text-white mb-1">
+                        Task Status
+                    </label>
+
+                    <select [(ngModel)]="filterStatus"
+                        class="w-full border dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="">All status</option>
+                        <option value="completed">Completed</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+
+                <!-- SINGLE DATE -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-900 dark:text-white mb-1">
+                        Single Date
+                    </label>
+
+                    <input type="date" [(ngModel)]="filterSingleDate" [min]="today"
+                        class="w-full border dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-lg p-2 focus:ring-2 focus:ring-blue-500" />
+                </div>
+
+                <!-- DATE RANGE -->
+                <div class="mb-5">
+                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                        Date Range
+                    </label>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="date" [(ngModel)]="filterFromDate" [min]="today"
+                            class="border dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-lg p-2 focus:ring-2 focus:ring-blue-500" />
+
+                        <input type="date" [(ngModel)]="filterToDate" [min]="today"
+                            class="border dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-lg p-2 focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                </div>
+
+                <!-- BUTTONS -->
+                <div class="flex justify-end gap-3 pt-2 border-t dark:border-gray-800">
+
+                    <button (click)="resetFilter()" class="px-4 py-2 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-lg">
+                        Cancle
+                    </button>
+
+                    <button (click)="applyFilter()"
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                        Apply
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- edit popup -->
+        <div *ngIf="showEditPopup" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+
+            <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl p-8 shadow-2xl relative border border-slate-100 dark:border-slate-800">
+
+                <!-- ❌ CLOSE BUTTON -->
+                <button type="button" (click)="closeEditPopup()"
+                    class="absolute top-5 right-5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full w-8 h-8 flex items-center justify-center text-2xl transition-colors">
+                    &times;
+                </button>
+
+                <div class="flex items-center gap-3 mb-6 border-b dark:border-gray-800 pb-4">
+                    <div class="p-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 rounded-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mt-1">
+                        Edit Task
+                    </h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                    <!-- Task Name -->
+                    <div class="md:col-span-2">
+                        <label class="text-sm font-semibold text-slate-900 dark:text-white">Task Name *</label>
+                        <input [(ngModel)]="editTask.taskName" placeholder="Enter task name"
+                               class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl p-3 mt-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow transition-colors" />
+
+                        <p *ngIf="submittedEdit && !editTask.taskName" class="text-red-500 text-xs mt-1 font-medium">
+                            Task name is required
+                        </p>
+                    </div>
+
+
+                    <!-- Assigned -->
+                    <div>
+                        <label class="text-sm font-semibold text-slate-900 dark:text-white">Assign To *</label>
+                        <select [(ngModel)]="editTask.assignedTo" 
+                                class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl p-3 mt-1.5 focus:ring-2 focus:ring-blue-500 outline-none transition-colors">
+
+                            <option value="">Select User</option>
+                            <option *ngFor="let u of users" [value]="u._id">
+                                {{ u.name }}
+                            </option>
+
+                        </select>
+                    </div>
+
+
+                    <!-- Category -->
+                    <div>
+                        <label class="text-sm font-semibold text-slate-900 dark:text-white">Category *</label>
+                        <select [(ngModel)]="editTask.category"
+                            class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl p-3 mt-1.5 focus:ring-2 focus:ring-blue-500 outline-none transition-colors">
+
+                            <option value="">Select category</option>
+                            <option *ngFor="let c of categories" [value]="c">
+                                {{ c }}
+                            </option>
+
+                        </select>
+
+                        <p *ngIf="submittedEdit && !editTask.category" class="text-red-500 text-xs mt-1 font-medium">
+                            Category is required
+                        </p>
+                    </div>
+
+
+                    <!-- Date -->
+                    <div class="md:col-span-2">
+                        <label class="text-sm font-semibold text-slate-900 dark:text-white">Date *</label>
+                        <input type="date" [(ngModel)]="editTask.date" [min]="today"
+                            class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl p-3 mt-1.5 focus:ring-2 focus:ring-blue-500 outline-none transition-colors" />
+
+                        <p *ngIf="submittedEdit && !editTask.date" class="text-red-500 text-xs mt-1 font-medium">
+                            Date is required
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- BUTTONS -->
+                <div class="flex justify-end gap-3 mt-8 pt-4 border-t dark:border-gray-800">
+
+                    <button (click)="showEditPopup=false; submittedEdit=false" 
+                            class="px-5 py-2.5 font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                        Cancel
+                    </button>
+
+                    <button (click)="updateTask()" [disabled]="loadingEdit"
+                        class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-70 disabled:hover:bg-blue-600 shadow-lg shadow-blue-600/20 text-white font-medium rounded-xl flex items-center gap-2 transition-all active:scale-95">
+                        <span *ngIf="loadingEdit" class="spinner border-2 border-white/20 border-t-white rounded-full w-4 h-4 animate-spin"></span>
+                        {{ loadingEdit ? 'Updating...' : 'Save Changes' }}
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ANALYTICS CHART -->
+        <app-task-chart [tasks]="tasks"></app-task-chart>
+
+        <!-- TABS -->
+        <div class="flex border-b mb-6">
+            <button (click)="changeTab('assignedByMe')" 
+                    class="px-6 py-3 font-medium transition-colors border-b-2"
+                    [ngClass]="activeTab === 'assignedByMe' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'">
+                📤 Assigned by Me
+            </button>
+            <button (click)="changeTab('assignedToMe')" 
+                    class="px-6 py-3 font-medium transition-colors border-b-2"
+                    [ngClass]="activeTab === 'assignedToMe' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'">
+                📥 Assigned to Me
+            </button>
+        </div>
+
+        <!-- TABLE -->
+        <div class="overflow-x-auto rounded-xl border border-gray-300 dark:border-gray-700">
+
+            <table class="w-full text-sm border-collapse">
+
+                <!-- HEADER -->
+                <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                    <tr>
+                        <th class="p-4 text-left border border-gray-300 dark:border-gray-700">Task</th>
+                        <th class="p-4 text-left border border-gray-300 dark:border-gray-700">Category</th>
+                        <th class="p-4 text-left border border-gray-300 dark:border-gray-700">Date</th>
+                        <th class="p-4 text-left border border-gray-300 dark:border-gray-700">Assigned</th>
+                        <th class="p-4 text-center border border-gray-300 dark:border-gray-700">Action</th>
+                    </tr>
+                </thead>
+
+                <!-- BODY -->
+                <tbody class="dark:bg-gray-900 dark:text-gray-300">
+
+                    <!-- 🦴 SKELETON LOADER -->
+                    <ng-container *ngIf="loading">
+                        <tr *ngFor="let item of [1,2,3,4,5]" class="animate-pulse">
+                            <td class="p-4 border border-gray-300 dark:border-gray-700">
+                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                            </td>
+                            <td class="p-4 border border-gray-300 dark:border-gray-700">
+                                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-1/2"></div>
+                            </td>
+                            <td class="p-4 border border-gray-300 dark:border-gray-700">
+                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                            </td>
+                            <td class="p-4 border border-gray-300 dark:border-gray-700">
+                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                            </td>
+                            <td class="p-4 border border-gray-300 dark:border-gray-700">
+                                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                            </td>
+                        </tr>
+                    </ng-container>
+
+                    <tr *ngFor="let t of paginatedTasks" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+
+                        <!-- Task -->
+                        <td class="p-4 border border-gray-300 dark:border-gray-700 font-medium" [ngClass]="{
+              'line-through text-red-600 decoration-red-600': t.completed
+            }">
+                            {{ t.taskName }}
+                        </td>
+
+                        <!-- Category -->
+                        <td class="p-4 border border-gray-300 dark:border-gray-700">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold" [ngClass]="{
+                  'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400': t.category === 'Work',
+                  'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': t.category === 'Personal',
+                  'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400': t.category === 'Study'
+                }">
+                                {{ t.category }}
+                            </span>
+                        </td>
+
+                        <!-- Date -->
+                        <td class="p-4 border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400">
+                            {{ t.date | date:'dd MMM yyyy' }}
+                        </td>
+
+                        <!-- Assigned -->
+                        <td class="p-4 border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400">
+                            <div class="flex flex-col">
+                                <span>{{ t.assignedTo?.name }}</span>
+                                <span class="text-xs text-gray-400">({{ t.assignedTo?.email }})</span>
+                                <span *ngIf="t.userId === currentUserId && t.assignedTo?._id === currentUserId" 
+                                      class="text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-1 rounded w-fit mt-1">
+                                    Self Assigned
+                                </span>
+                            </div>
+                        </td>
+
+                        <!-- Action -->
+                        <td class="p-4 border border-gray-300 dark:border-gray-700 text-center">
+                            <div class="flex justify-center gap-2">
+                                <button (click)="toggle(t)" class="px-3 py-1 text-sm rounded text-white" [ngClass]="{
+                'bg-green-600 hover:bg-green-700': !t.completed,
+                'bg-gray-500 hover:bg-gray-600': t.completed
+              }">
+                                    {{ t.completed ? 'Uncomplete' : 'Complete' }}
+                                </button>
+
+                                <button *ngIf="t.userId === currentUserId" (click)="edit(t)"
+                                    class="px-3 py-1 text-sm bg-yellow-500 hover:bg-yellow-600 text-white rounded">
+                                    Edit
+                                </button>
+                                
+                                <button *ngIf="t.userId === currentUserId" (click)="delete(t._id)"
+                                    class="px-3 py-1 text-sm bg-red-500 hover:bg-red-600 text-white rounded">
+                                    Delete
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    <!-- 🔴 NO TASK FOUND -->
+                    <tr *ngIf="filteredTasks.length === 0">
+
+                        <td colspan="5" class="p-10 text-center">
+
+                            <div class="flex flex-col items-center gap-2 text-gray-500">
+
+                                <span class="text-5xl">📭</span>
+
+                                <p class="text-lg font-semibold">
+                                    No tasks found
+                                </p>
+
+                                <p class="text-sm">
+
+                                    <span *ngIf="tasks.length === 0">
+                                        Start by adding your first task
+                                    </span>
+
+                                    <span *ngIf="tasks.length > 0">
+                                        No tasks match your filter
+                                    </span>
+
+                                </p>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+        <div *ngIf="filteredTasks.length > pageSize" class="flex justify-end mt-6 gap-2">
+
+             <!-- PREVIOUS -->
+            <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1" class="px-4 py-2 border rounded-lg
+            dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300
+           disabled:opacity-40
+           hover:bg-gray-100 dark:hover:bg-gray-700">
+                ⬅ Prev
+            </button>
+
+            <!-- PAGE NUMBER -->
+            <span class="px-4 py-2 font-semibold">
+                Page {{ currentPage }}
+                /
+                {{ totalPages }}
+            </span>
+
+            <!-- NEXT -->
+            <button (click)="currentPage = currentPage + 1" [disabled]="currentPage >= filteredTasks.length / pageSize"
+                class="px-4 py-2 border rounded-lg
+                dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300
+           disabled:opacity-40
+           hover:bg-gray-100 dark:hover:bg-gray-700">
+                Next ➡
+            </button>
+
+        </div>
+    </div>
+
+</div>

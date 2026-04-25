@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager - Data Flow Diagrams</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f5;
+      color: #222;
+      padding: 40px 20px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 10px;
+      color: #1a1a1a;
+    }
+    h2 {
+      text-align: center;
+      font-size: 20px;
+      margin-bottom: 30px;
+      color: #555;
+      font-weight: 400;
+    }
+    .diagram-container {
+      max-width: 1000px;
+      margin: 0 auto 60px auto;
+      background: #fff;
+      border: 2px solid #333;
+      border-radius: 4px;
+      padding: 20px;
+      position: relative;
+    }
+    .diagram-container::before {
+      content: '';
+      position: absolute;
+      top: -6px; left: -6px; right: -6px; bottom: -6px;
+      border: 1px solid #999;
+      border-radius: 6px;
+      pointer-events: none;
+    }
+    .diagram-title {
+      text-align: center;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #ddd;
+      color: #222;
+    }
+    /* Corner circles */
+    .corner { fill: #fff; stroke: #333; stroke-width: 1.5; }
+
+    /* Entity rectangle */
+    .entity-rect { fill: #fff; stroke: #333; stroke-width: 2; }
+    .entity-text { font-family: 'Segoe UI', sans-serif; font-size: 16px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+
+    /* Process circle */
+    .process-circle { fill: #fff; stroke: #333; stroke-width: 2; }
+    .process-text { font-family: 'Segoe UI', sans-serif; font-size: 13px; font-weight: 600; text-anchor: middle; }
+    .process-number { font-family: 'Segoe UI', sans-serif; font-size: 12px; font-weight: 400; text-anchor: middle; }
+
+    /* Data Store */
+    .datastore-line { stroke: #333; stroke-width: 2; }
+    .datastore-text { font-family: 'Segoe UI', sans-serif; font-size: 15px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+
+    /* Arrows */
+    .arrow-line { stroke: #333; stroke-width: 1.5; fill: none; }
+    .arrow-label { font-family: 'Segoe UI', sans-serif; font-size: 12px; text-anchor: middle; dominant-baseline: central; }
+
+    .print-btn {
+      display: block;
+      margin: 0 auto 30px auto;
+      padding: 12px 30px;
+      background: #333;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .print-btn:hover { background: #555; }
+
+    @media print {
+      body { background: #fff; padding: 10px; }
+      .print-btn { display: none; }
+      .diagram-container { break-inside: avoid; border-color: #000; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Task Manager System</h1>
+  <h2>Data Flow Diagrams</h2>
+  <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+
+  <!-- ===================== LEVEL 0 - CONTEXT DIAGRAM ===================== -->
+  <div class="diagram-container">
+    <div class="diagram-title">Level 0 — Context Diagram</div>
+    <svg viewBox="0 0 900 420" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrowR0" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+        </marker>
+        <marker id="arrowL0" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+          <polygon points="10 0, 0 3.5, 10 7" fill="#333"/>
+        </marker>
+      </defs>
+
+      <!-- Corner circles -->
+      <circle cx="20" cy="20" r="6" class="corner"/>
+      <circle cx="880" cy="20" r="6" class="corner"/>
+      <circle cx="20" cy="400" r="6" class="corner"/>
+      <circle cx="880" cy="400" r="6" class="corner"/>
+      <circle cx="450" cy="20" r="6" class="corner"/>
+      <circle cx="450" cy="400" r="6" class="corner"/>
+      <circle cx="20" cy="210" r="6" class="corner"/>
+      <circle cx="880" cy="210" r="6" class="corner"/>
+
+      <!-- USER Entity -->
+      <rect x="70" y="120" width="140" height="180" class="entity-rect"/>
+      <text x="140" y="210" class="entity-text">USER</text>
+
+      <!-- TASK MANAGEMENT SYSTEM Process -->
+      <circle cx="650" cy="210" r="110" class="process-circle"/>
+      <text x="650" y="195" class="process-text" style="font-size:14px; font-weight:700;">TASK MANAGEMENT</text>
+      <text x="650" y="220" class="process-text" style="font-size:14px; font-weight:700;">SYSTEM</text>
+
+      <!-- Arrow 1: Login Data → -->
+      <line x1="210" y1="145" x2="538" y2="145" class="arrow-line" marker-end="url(#arrowR0)"/>
+      <text x="374" y="137" class="arrow-label">Login Data</text>
+
+      <!-- Arrow 2: Signup Data → -->
+      <line x1="210" y1="180" x2="538" y2="180" class="arrow-line" marker-end="url(#arrowR0)"/>
+      <text x="374" y="172" class="arrow-label">Signup Data</text>
+
+      <!-- Arrow 3: Forgot Password Request → -->
+      <line x1="210" y1="215" x2="538" y2="215" class="arrow-line" marker-end="url(#arrowR0)"/>
+      <text x="374" y="207" class="arrow-label">Forgot Password Request</text>
+
+      <!-- Arrow 4: Task Details → -->
+      <line x1="210" y1="250" x2="538" y2="250" class="arrow-line" marker-end="url(#arrowR0)"/>
+      <text x="374" y="242" class="arrow-label">Task Details</text>
+
+      <!-- Arrow 5: Category Details → -->
+      <line x1="210" y1="285" x2="538" y2="285" class="arrow-line" marker-end="url(#arrowR0)"/>
+      <text x="374" y="277" class="arrow-label">Category Details</text>
+
+      <!-- Arrow 6: ← Login Response / JWT Token -->
+      <line x1="538" y1="315" x2="210" y2="315" class="arrow-line" marker-end="url(#arrowL0)"/>
+      <text x="374" y="307" class="arrow-label">Login Response / JWT Token</text>
+
+      <!-- Arrow 7: ← OTP -->
+      <line x1="538" y1="345" x2="210" y2="345" class="arrow-line" marker-end="url(#arrowL0)"/>
+      <text x="374" y="337" class="arrow-label">OTP</text>
+
+      <!-- Arrow 8: ← Task Details -->
+      <line x1="538" y1="375" x2="210" y2="375" class="arrow-line" marker-end="url(#arrowL0)"/>
+      <text x="374" y="367" class="arrow-label">Task Details / Email Notification</text>
+    </svg>
+  </div>
+
+
+  <!-- ===================== LEVEL 1 - DFD ===================== -->
+  <div class="diagram-container">
+    <div class="diagram-title">Level 1 — Data Flow Diagram</div>
+    <svg viewBox="0 0 960 680" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrowR1" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+        </marker>
+        <marker id="arrowL1" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+          <polygon points="10 0, 0 3.5, 10 7" fill="#333"/>
+        </marker>
+        <marker id="arrowD1" markerWidth="7" markerHeight="10" refX="3.5" refY="10" orient="auto">
+          <polygon points="0 0, 3.5 10, 7 0" fill="#333"/>
+        </marker>
+        <marker id="arrowU1" markerWidth="7" markerHeight="10" refX="3.5" refY="0" orient="auto">
+          <polygon points="0 10, 3.5 0, 7 10" fill="#333"/>
+        </marker>
+      </defs>
+
+      <!-- Corner circles -->
+      <circle cx="20" cy="20" r="6" class="corner"/>
+      <circle cx="940" cy="20" r="6" class="corner"/>
+      <circle cx="20" cy="660" r="6" class="corner"/>
+      <circle cx="940" cy="660" r="6" class="corner"/>
+      <circle cx="480" cy="20" r="6" class="corner"/>
+      <circle cx="480" cy="660" r="6" class="corner"/>
+      <circle cx="20" cy="340" r="6" class="corner"/>
+      <circle cx="940" cy="340" r="6" class="corner"/>
+
+      <!-- ======= USER Entity ======= -->
+      <rect x="50" y="220" width="130" height="200" class="entity-rect"/>
+      <text x="115" y="320" class="entity-text">USER</text>
+
+      <!-- ======= PROCESS 1.0 — Signup ======= -->
+      <circle cx="400" cy="80" r="48" class="process-circle"/>
+      <text x="400" y="72" class="process-number">1.0</text>
+      <text x="400" y="90" class="process-text">Signup</text>
+
+      <!-- ======= PROCESS 2.0 — Login ======= -->
+      <circle cx="400" cy="230" r="48" class="process-circle"/>
+      <text x="400" y="222" class="process-number">2.0</text>
+      <text x="400" y="240" class="process-text">Login</text>
+
+      <!-- ======= PROCESS 3.0 — Forgot Password ======= -->
+      <circle cx="400" cy="395" r="48" class="process-circle"/>
+      <text x="400" y="382" class="process-number">3.0</text>
+      <text x="400" y="398" class="process-text">Forgot</text>
+      <text x="400" y="413" class="process-text">Password</text>
+
+      <!-- ======= PROCESS 4.0 — Task Management ======= -->
+      <circle cx="400" cy="555" r="48" class="process-circle"/>
+      <text x="400" y="542" class="process-number">4.0</text>
+      <text x="400" y="558" class="process-text">Task</text>
+      <text x="400" y="573" class="process-text">Management</text>
+
+      <!-- ======= PROCESS 5.0 — Category Management ======= -->
+      <circle cx="700" cy="555" r="48" class="process-circle"/>
+      <text x="700" y="542" class="process-number">5.0</text>
+      <text x="700" y="558" class="process-text">Category</text>
+      <text x="700" y="573" class="process-text">Mgmt</text>
+
+      <!-- ======= DATA STORE: users ======= -->
+      <line x1="740" y1="150" x2="920" y2="150" class="datastore-line"/>
+      <line x1="740" y1="190" x2="920" y2="190" class="datastore-line"/>
+      <text x="830" y="172" class="datastore-text">users</text>
+
+      <!-- ======= DATA STORE: tasks ======= -->
+      <line x1="740" y1="350" x2="920" y2="350" class="datastore-line"/>
+      <line x1="740" y1="390" x2="920" y2="390" class="datastore-line"/>
+      <text x="830" y="372" class="datastore-text">tasks</text>
+
+      <!-- ======= DATA STORE: categories ======= -->
+      <line x1="740" y1="460" x2="920" y2="460" class="datastore-line"/>
+      <line x1="740" y1="500" x2="920" y2="500" class="datastore-line"/>
+      <text x="830" y="482" class="datastore-text">categories</text>
+
+      <!-- ==================== ARROWS ==================== -->
+
+      <!-- USER → 1.0 Signup: Name, Email, Password -->
+      <line x1="180" y1="250" x2="352" y2="95" class="arrow-line" marker-end="url(#arrowR1)"/>
+      <text x="240" y="155" class="arrow-label" transform="rotate(-30, 240, 155)">Name, Email, Password</text>
+
+      <!-- 1.0 Signup → users: Store User Details -->
+      <line x1="448" y1="80" x2="738" y2="160" class="arrow-line" marker-end="url(#arrowR1)"/>
+      <text x="600" y="108" class="arrow-label">User Details</text>
+
+      <!-- 1.0 Signup → USER: Signup Response -->
+      <line x1="355" y1="65" x2="175" y2="230" class="arrow-line" marker-end="url(#arrowL1)"/>
+      <text x="220" y="120" class="arrow-label" transform="rotate(-48, 220, 120)">Signup Response</text>
+
+      <!-- users → 1.0 Signup: Check existing email -->
+      <line x1="738" y1="175" x2="448" y2="95" class="arrow-line" marker-end="url(#arrowL1)"/>
+      <text x="605" y="148" class="arrow-label">Email Check</text>
+
+      <!-- USER → 2.0 Login: Email, Password -->
+      <line x1="180" y1="290" x2="350" y2="240" class="arrow-line" marker-end="url(#arrowR1)"/>
+      <text x="250" y="255" class="arrow-label">Email, Password</text>
+
+      <!-- 2.0 Login → users: Verify credentials -->
+      <line x1="448" y1="215" x2="738" y2="165" class="arrow-line" marker-end="url(#arrowR1)"/>
+      <text x="610" y="178" class="arrow-label">Email, Password</text>
+
+      <!-- users → 2.0 Login: User Profile -->
+      <line x1="738" y1="185" x2="448" y2="240" class="arrow-line" marker-end="url(#arrowL1)"/>
+      <text x="610" y="225" class="arrow-label">User Profile</text>
+
+      <!-- 2.0 Login → USER: JWT Token -->
+      <line x1="352" y1="245" x2="180" y2="310" class="arrow-line" marker-end="url(#arrowL1)"/>
+      <text x="233" y="290" class="arrow-label">JWT Token</text>
+
+      <!-- USER → 3.0 Forgot Password: Email -->
+      <line x1="180" y1="370" x2="350" y2="390" class="arrow-line" marker-end="url(#arrowR1)"/>
+      <text x="255" y="372" class="arrow-label">Email</text>
+
+      <!-- 3.0 → users: Look up & store OTP -->
+      <line x1="448" y1="380" x2="738" y2="170" class="arrow-line" marker-end="url(#arrowR1)"/>
+      <text x="630" y="270" class="arrow-label" transform="rotate(-35, 630, 270)">OTP, Verify</text>
+
+      <!-- users → 3.0: User found, OTP match -->
+      <line x1="740" y1="188" x2="448" y2="400" class="arrow-line" marker-end="url(#arrowL1)"/>
+      <text x="555" y="320" class="arrow-label" transform="rotate(30, 555, 320)">User Details</text>
+
+      <!-- 3.0 → USER: OTP / Reset Confirmation -->
+      <line x1="352" y1="405" x2="180" y2="395" class="arrow-line" marker-end="url(#arrowL1)"/>
+      <text x="255" y="410" class="arrow-label">OTP / Reset Confirm</text>
+
+      <!-- USER → 4.0 Task Management: Task Details -->
+      <line x1="180" y1="400" x2="352" y2="540" class="arrow-line" marker-end="url(#arrowR1)"/>
+      <text x="230" y="490" class="arrow-label" transform="rotate(35, 230, 490)">Task Details</text>
+
+      <!-- 4.0 → tasks: Store Task -->
+      <line x1="448" y1="545" x2="738" y2="365" class="arrow-line" marker-end="url(#arrowR1)"/>
+      <text x="610" y="440" class="arrow-label" transform="rotate(-30, 610, 440)">Task Details</text>
+
+      <!-- tasks → 4.0: Retrieve Tasks -->
+      <line x1="740" y1="385" x2="448" y2="565" class="arrow-line" marker-end="url(#arrowL1)"/>
+      <text x="620" y="500" class="arrow-label" transform="rotate(30, 620, 500)">Task Details</text>
+
+      <!-- 4.0 → USER: Task Details / Notification -->
+      <line x1="355" y1="570" x2="175" y2="420" class="arrow-line" marker-end="url(#arrowL1)"/>
+      <text x="225" y="515" class="arrow-label" transform="rotate(-38, 225, 515)">Task Details</text>
+
+      <!-- USER → 5.0 Category Mgmt -->
+      <line x1="180" y1="420" x2="650" y2="555" class="arrow-line" marker-end="url(#arrowR1)"/>
+      <text x="370" y="510" class="arrow-label">Category Name</text>
+
+      <!-- 5.0 → categories: Store -->
+      <line x1="748" y1="545" x2="830" y2="500" class="arrow-line" marker-end="url(#arrowR1)"/>
+      <text x="810" y="515" class="arrow-label">Store</text>
+
+      <!-- categories → 5.0: Retrieve -->
+      <line x1="830" y1="502" x2="748" y2="565" class="arrow-line" marker-end="url(#arrowL1)"/>
+      <text x="815" y="545" class="arrow-label">List</text>
+
+      <!-- 5.0 → USER: Category List -->
+      <line x1="652" y1="570" x2="175" y2="415" class="arrow-line" marker-end="url(#arrowL1)"/>
+      <text x="380" y="530" class="arrow-label">Category List</text>
+
+    </svg>
+  </div>
+
+  <!-- ===================== LEVEL 2 - LOGIN PROCESS ===================== -->
+  <div class="diagram-container">
+    <div class="diagram-title">Level 2 — Process 2.0 Login (Expanded)</div>
+    <svg viewBox="0 0 900 440" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrowR2" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+        </marker>
+        <marker id="arrowL2" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+          <polygon points="10 0, 0 3.5, 10 7" fill="#333"/>
+        </marker>
+      </defs>
+
+      <!-- Corner circles -->
+      <circle cx="20" cy="20" r="6" class="corner"/>
+      <circle cx="880" cy="20" r="6" class="corner"/>
+      <circle cx="20" cy="420" r="6" class="corner"/>
+      <circle cx="880" cy="420" r="6" class="corner"/>
+      <circle cx="450" cy="20" r="6" class="corner"/>
+      <circle cx="450" cy="420" r="6" class="corner"/>
+      <circle cx="20" cy="220" r="6" class="corner"/>
+      <circle cx="880" cy="220" r="6" class="corner"/>
+
+      <!-- USER Entity -->
+      <rect x="55" y="130" width="130" height="160" class="entity-rect"/>
+      <text x="120" y="210" class="entity-text">USER</text>
+
+      <!-- Process 2.1 — Validate Input -->
+      <circle cx="350" cy="130" r="45" class="process-circle"/>
+      <text x="350" y="122" class="process-number">2.1</text>
+      <text x="350" y="140" class="process-text">Validate</text>
+
+      <!-- Process 2.2 — Authenticate -->
+      <circle cx="350" cy="300" r="45" class="process-circle"/>
+      <text x="350" y="290" class="process-number">2.2</text>
+      <text x="350" y="308" class="process-text">Authenticate</text>
+
+      <!-- Process 2.3 — Generate Token -->
+      <circle cx="600" cy="300" r="45" class="process-circle"/>
+      <text x="600" y="287" class="process-number">2.3</text>
+      <text x="600" y="303" class="process-text">Generate</text>
+      <text x="600" y="318" class="process-text">JWT Token</text>
+
+      <!-- Data Store: users -->
+      <line x1="700" y1="110" x2="870" y2="110" class="datastore-line"/>
+      <line x1="700" y1="150" x2="870" y2="150" class="datastore-line"/>
+      <text x="785" y="133" class="datastore-text">users</text>
+
+      <!-- USER → 2.1: Email, Password -->
+      <line x1="185" y1="175" x2="303" y2="140" class="arrow-line" marker-end="url(#arrowR2)"/>
+      <text x="234" y="146" class="arrow-label">Email, Password</text>
+
+      <!-- 2.1 → 2.2: Validated Credentials -->
+      <line x1="350" y1="175" x2="350" y2="253" class="arrow-line" marker-end="url(#arrowR2)"/>
+      <text x="290" y="215" class="arrow-label" style="text-anchor:end;">Validated</text>
+      <text x="290" y="230" class="arrow-label" style="text-anchor:end;">Credentials</text>
+
+      <!-- 2.2 → users: Lookup -->
+      <line x1="395" y1="285" x2="698" y2="135" class="arrow-line" marker-end="url(#arrowR2)"/>
+      <text x="545" y="190" class="arrow-label">Email, Hashed Password</text>
+
+      <!-- users → 2.2: User Record -->
+      <line x1="700" y1="148" x2="395" y2="310" class="arrow-line" marker-end="url(#arrowL2)"/>
+      <text x="565" y="250" class="arrow-label">User Record</text>
+
+      <!-- 2.2 → 2.3: Authenticated User -->
+      <line x1="395" y1="310" x2="553" y2="305" class="arrow-line" marker-end="url(#arrowR2)"/>
+      <text x="475" y="298" class="arrow-label">Auth Success</text>
+
+      <!-- 2.3 → users: Store Token -->
+      <line x1="630" y1="258" x2="780" y2="152" class="arrow-line" marker-end="url(#arrowR2)"/>
+      <text x="730" y="190" class="arrow-label">Store Token</text>
+
+      <!-- 2.3 → USER: JWT Token + Cookie -->
+      <line x1="555" y1="315" x2="185" y2="245" class="arrow-line" marker-end="url(#arrowL2)"/>
+      <text x="350" y="310" class="arrow-label">JWT Token + Cookie</text>
+
+      <!-- 2.1 → USER: Validation Error -->
+      <line x1="305" y1="125" x2="185" y2="165" class="arrow-line" marker-end="url(#arrowL2)"/>
+      <text x="210" y="128" class="arrow-label">Error (if invalid)</text>
+
+    </svg>
+  </div>
+
+</body>
+</html>
