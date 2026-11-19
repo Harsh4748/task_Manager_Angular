@@ -24,6 +24,25 @@ A modern, full-stack Task Management application built using the **MERN** stack 
 
 ---
 
+## 📸 Screenshots & UI Preview
+
+### 🏠 Dashboard Overview
+| 🌟 Light Mode | 🌙 Dark Mode |
+| :---: | :---: |
+| ![Dashboard Light](screenshots/dashboard-light.png) | ![Dashboard Dark](screenshots/dashboard-dark.png) |
+
+### 📊 Dynamic Analytics & Charts
+| 📈 Task Analytics & Metrics |
+| :---: |
+| ![Task Analytics](screenshots/analytics.png) |
+
+### 🔐 Authentication Flow
+| 🔑 Login | 📝 Sign-Up |
+| :---: | :---: |
+| ![Login Screen](screenshots/login.png) | ![Signup Screen](screenshots/signup.png) |
+
+---
+
 ## 🏛️ System Architecture
 
 ```mermaid
